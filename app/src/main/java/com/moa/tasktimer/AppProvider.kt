@@ -1,5 +1,6 @@
 package com.moa.tasktimer
 
+import android.annotation.SuppressLint
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
@@ -26,7 +27,6 @@ val CONTENT_AUTHORITY_URI: Uri = Uri.parse("content://${CONTENT_AUTHORITY}")
 
 class AppProvider:ContentProvider() {
     private val uriMatcher:UriMatcher by lazy { buildUriMatcher() }
-
     private fun buildUriMatcher():UriMatcher {
         Log.d(TAG,"buildUriMatcher starts")
 
@@ -47,6 +47,8 @@ class AppProvider:ContentProvider() {
         return true
     }
 
+
+    @SuppressLint("NewApi")
     override fun query(
         uri: Uri,
         projection: Array<out String>?,
@@ -79,7 +81,8 @@ class AppProvider:ContentProvider() {
 //            }
             else -> throw IllegalStateException("Unknown Uri: $uri")
         }
-        val db = AppDatabase.getInstance(context!!).readableDatabase
+        val context = requireContext()
+        val db = AppDatabase.getInstance(context).readableDatabase
         return queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder)
     }
 
