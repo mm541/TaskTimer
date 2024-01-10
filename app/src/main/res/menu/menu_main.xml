@@ -3,8 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.moa.tasktimer.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:id="@+id/menuitem_addtask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@android:drawable/ic_menu_add"
+        android:orderInCategory="10"
+        android:title="@string/add_task"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/mainmanu_showDurations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@android:drawable/ic_menu_view"
+        android:orderInCategory="20"
+        android:title="show durations"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/mainmenu_settings"
+        android:orderInCategory="30"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/mainmenu_about"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="40"
+        android:title="About"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/mainmenu_generate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orderInCategory="50"
+        android:title="Generate data"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>

@@ -29,7 +29,7 @@ val CONTENT_AUTHORITY_URI: Uri = Uri.parse("content://${CONTENT_AUTHORITY}")
 
 class AppProvider:ContentProvider() {
     private val uriMatcher:UriMatcher by lazy { buildUriMatcher() }
-    private val context = requireContext(this)
+
     private fun buildUriMatcher():UriMatcher {
         Log.d(TAG,"buildUriMatcher starts")
 
@@ -57,6 +57,7 @@ class AppProvider:ContentProvider() {
         selectionArgs: Array<out String>?,
         sortOrder: String?,
     ): Cursor? {
+        val context = requireContext(this)
         val match = uriMatcher.match(uri)
         Log.d(TAG, "query called and match is $match")
 
@@ -97,7 +98,7 @@ class AppProvider:ContentProvider() {
     override fun insert(uri: Uri, values: ContentValues?): Uri {
         val match = uriMatcher.match(uri)
         Log.d(TAG, "insert() called and match is $match")
-
+        val context = requireContext(this)
         val recordId:Long
         val returnUri:Uri
         when(match) {
@@ -126,7 +127,43 @@ class AppProvider:ContentProvider() {
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        TODO("Not yet implemented")
+        val match = uriMatcher.match(uri)
+        Log.d(TAG, "delete() called and match is $match")
+        val context = requireContext(this)
+        val count:Int
+        var selectionCriteria:String
+
+        when(match) {
+            TASKS -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                count = db.delete(TasksContract.TABLE_NAME,selection,selectionArgs)
+            }
+            TASKS_ID -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                val id = TasksContract.getId(uri)
+                selectionCriteria = "${TasksContract.Columns.ID} = $id"
+                if(!selection.isNullOrEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.delete(TasksContract.TABLE_NAME,selectionCriteria,selectionArgs)
+            }
+            TIMINGS -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                count = db.delete(TimingsContract.TABLE_NAME,selection,selectionArgs)
+            }
+            TIMINGS_ID -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                val id = TimingsContract.getId(uri)
+                selectionCriteria = "${TimingsContract.Columns.ID} = $id"
+                if(!selection.isNullOrEmpty()) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.delete(TimingsContract.TABLE_NAME,selectionCriteria,selectionArgs)
+            }
+            else -> throw IllegalArgumentException("invalid uri: $uri")
+        }
+        Log.d(TAG,"return count : $count")
+        return count
     }
 
     override fun update(
@@ -136,8 +173,8 @@ class AppProvider:ContentProvider() {
         selectionArgs: Array<out String>?,
     ): Int {
         val match = uriMatcher.match(uri)
-        Log.d(TAG, "insert() called and match is $match")
-
+        Log.d(TAG, "update() called and match is $match")
+        val context = requireContext(this)
         val count:Int
         var selectionCriteria:String
 
@@ -150,7 +187,7 @@ class AppProvider:ContentProvider() {
                 val db = AppDatabase.getInstance(context).writableDatabase
                 val id = TasksContract.getId(uri)
                 selectionCriteria = "${TasksContract.Columns.ID} = $id"
-                if(selection != null) {
+                if(!selection.isNullOrEmpty()) {
                     selectionCriteria += " AND ($selection)"
                 }
                 count = db.update(TasksContract.TABLE_NAME,values,selectionCriteria,selectionArgs)
@@ -163,7 +200,7 @@ class AppProvider:ContentProvider() {
                 val db = AppDatabase.getInstance(context).writableDatabase
                 val id = TimingsContract.getId(uri)
                 selectionCriteria = "${TimingsContract.Columns.ID} = $id"
-                if(selection != null) {
+                if(!selection.isNullOrEmpty()) {
                     selectionCriteria += " AND ($selection)"
                 }
                 count = db.update(TimingsContract.TABLE_NAME,values,selectionCriteria,selectionArgs)
