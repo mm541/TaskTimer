@@ -2,14 +2,14 @@ package com.moa.tasktimer
 
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
+import com.google.android.material.snackbar.Snackbar
 import com.moa.tasktimer.databinding.ActivityMainBinding
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
@@ -23,23 +23,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        val appDataBase = AppDatabase.getInstance(this)
-        val db = appDataBase.readableDatabase
 
-        val cursor = db.rawQuery("SELECT * FROM Tasks",null)
+        val projection = arrayOf(TasksContract.Columns.TASK_NAME,TasksContract.Columns.SORT_ORDER)
+        val sortColumn = TasksContract.Columns.SORT_ORDER
+        val cursor = contentResolver.query(TasksContract.buildUriFromId(1),
+            projection,
+            null,
+            null,
+            sortColumn)
         cursor.use {
-            while (it.moveToNext()) {
-                with(it) {
-                    val id = getLong(0)
-                    val name = getString(1)
-                    val description = getString(2)
-                    val sortOrder = getInt(1)
-                    Log.d(TAG,"""
-                        id = $id
-                        name = $name
-                        description = $description
-                        sortOrder = $sortOrder
-                    """.trimIndent())
+            if (it != null) {
+                while (it.moveToNext()) {
+                    with(it) {
+//                        val id = getLong(0)
+                        val name = getString(0)
+//                        val description = getString(2)
+                        val sortOrder = getInt(1)
+                        Log.d(TAG,"""                      
+                                name = $name                               
+                                sortOrder = $sortOrder
+                            """.trimIndent())
+                    }
                 }
             }
         }
