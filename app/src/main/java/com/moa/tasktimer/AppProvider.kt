@@ -119,7 +119,7 @@ class AppProvider:ContentProvider() {
                     throw SQLException("Something error occurred while inserting in Timings table")
                 }
             }
-            else -> throw IllegalStateException("Unknown uri: $uri")
+            else -> throw IllegalArgumentException("Unknown uri: $uri")
         }
         Log.d(TAG,"exiting insert returning: $returnUri")
         return returnUri
@@ -135,6 +135,42 @@ class AppProvider:ContentProvider() {
         selection: String?,
         selectionArgs: Array<out String>?,
     ): Int {
-        TODO("Not yet implemented")
+        val match = uriMatcher.match(uri)
+        Log.d(TAG, "insert() called and match is $match")
+
+        val count:Int
+        var selectionCriteria:String
+
+        when(match) {
+            TASKS -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                count = db.update(TasksContract.TABLE_NAME,values,selection,selectionArgs)
+            }
+            TASKS_ID -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                val id = TasksContract.getId(uri)
+                selectionCriteria = "${TasksContract.Columns.ID} = $id"
+                if(selection != null) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.update(TasksContract.TABLE_NAME,values,selectionCriteria,selectionArgs)
+            }
+            TIMINGS -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                count = db.update(TimingsContract.TABLE_NAME,values,selection,selectionArgs)
+            }
+            TIMINGS_ID -> {
+                val db = AppDatabase.getInstance(context).writableDatabase
+                val id = TimingsContract.getId(uri)
+                selectionCriteria = "${TimingsContract.Columns.ID} = $id"
+                if(selection != null) {
+                    selectionCriteria += " AND ($selection)"
+                }
+                count = db.update(TimingsContract.TABLE_NAME,values,selectionCriteria,selectionArgs)
+            }
+            else -> throw IllegalArgumentException("invalid uri: $uri")
+        }
+        Log.d(TAG,"return count : $count")
+        return count
     }
 }
