@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.moa.tasktimer.databinding.ActivityMainBinding
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
     private var mTwoPane = false
     private lateinit var taskDetailsContainer:FrameLayout
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG,"onCreate() called")
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
         taskDetailsContainer = findViewById(R.id.task_details_container)
 
         mTwoPane = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        Log.d(TAG,"onCreate: mTwoPane is $mTwoPane")
         val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
         if(fragment != null) {
             taskDetailsContainer.visibility = View.VISIBLE
@@ -34,6 +37,20 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
             taskDetailsContainer.visibility = if(mTwoPane) View.INVISIBLE else View.GONE
             binding.mainFragment.visibility = View.VISIBLE
         }
+
+        Log.d(TAG,"onCreate() finished")
+
+        onBackPressedDispatcher.addCallback(this,object : OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+                val frag = supportFragmentManager.findFragmentById(R.id.task_details_container)
+                if(frag==null || mTwoPane) {
+                    isEnabled = false
+                    finish()
+                }else {
+                    removeEditPane(fragment)
+                }
+            }
+        })
     }
     private fun removeEditPane(fragment: Fragment? = null) {
         Log.d(TAG,"removeEditPane() called")
@@ -44,6 +61,8 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
         }
         taskDetailsContainer.visibility = if(mTwoPane) View.INVISIBLE else View.GONE
         binding.mainFragment.visibility = View.VISIBLE
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -53,8 +72,12 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
          when (item.itemId) {
             R.id.mainmenu_addtask -> {requestEditTask(null)
-            return true
             }
+             android.R.id.home -> {
+                 Log.d(TAG,"onOptionsItemSelected: home button pressed")
+                 val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
+                 removeEditPane(fragment)
+             }
         }
         return  super.onOptionsItemSelected(item)
     }
@@ -73,6 +96,10 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
         taskDetailsContainer.visibility = View.VISIBLE
         binding.mainFragment.visibility = if (mTwoPane) View.VISIBLE else View.GONE
     }
+
+
+
+
 
 
 }

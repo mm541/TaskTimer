@@ -1,5 +1,7 @@
 package com.moa.tasktimer
 
+import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -7,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.moa.tasktimer.databinding.FragmentAddEditBinding
 
@@ -39,9 +42,7 @@ class AddEditFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         Log.d(TAG,"onCreateView() starts")
-        // Inflate the layout for this fragment
         binding = FragmentAddEditBinding.inflate(layoutInflater)
-//        return inflater.inflate(R.layout.fragment_add_edit, container, false)
         return binding.root
     }
 
@@ -54,14 +55,57 @@ class AddEditFragment : Fragment() {
             throw RuntimeException("$context: OnSaveClicked must be implemented")
         }
     }
+    private fun saveTask() {
+        val sortOrder = if(binding.addeditSortorder.text.isNotEmpty()) {
+            binding.addeditSortorder.text.toString().toLong()
+        }else {
+            0
+        }
+        val values = ContentValues()
+        val task = task
+        if(task != null) {
+            if(binding.addeditName.text .isNotEmpty() && binding.addeditName.text.toString() != task.name) {
+                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
+            }
+            if(binding.addeditDescription.text.toString() != task.description) {
+                values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
+            }
+            if(sortOrder != task.sortOrder) {
+                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
+            }
+            if(values.size() != 0) {
+                Log.d(TAG,"updating values")
+                activity?.contentResolver?.update(TasksContract.buildUriFromId(task.id),values,null,null)
+            }
+        }else {
+            if(binding.addeditName.text.isNotEmpty()) {
+                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
+                if(binding.addeditDescription.text.isNotEmpty()) {
+                    values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
+                }
+                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
+                activity?.contentResolver?.insert(TasksContract.CONTENT_URI,values)
+            }
+        }
+    }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG,"onViewCreated() called")
         super.onViewCreated(view, savedInstanceState)
         binding.addeditSave.setOnClickListener {
+            saveTask()
             listener?.onSaveClicked()
         }
-
+        if(savedInstanceState == null) {
+        val task = task
+            if(task != null) {
+                Log.d(TAG,"onViewCreated() task is not null and id is ${task.id}")
+                binding.addeditName.setText(task.name)
+                binding.addeditName.setText(task.description)
+                binding.addeditName.setText(task.sortOrder.toString())
+            }
+        }
     }
     override fun onDetach() {
         Log.d(TAG,"onDetach() starts")
@@ -71,15 +115,15 @@ class AddEditFragment : Fragment() {
     interface OnSaveClicked {
         fun onSaveClicked()
     }
+
+    override fun onStart() {
+        super.onStart()
+        if(listener is AppCompatActivity) {
+            val actionBar = (listener as AppCompatActivity?)?.supportActionBar
+            actionBar?.setDisplayHomeAsUpEnabled(true)
+        }
+    }
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param task Parameter 1.
-         * @return A new instance of fragment AddEditFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(task: Task?) =
             AddEditFragment().apply {
@@ -88,4 +132,6 @@ class AddEditFragment : Fragment() {
                 }
             }
     }
+
+
 }
