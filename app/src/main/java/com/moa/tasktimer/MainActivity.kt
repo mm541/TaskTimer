@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 import com.moa.tasktimer.databinding.ActivityMainBinding
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
+class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActivityFragment.OnEditTask {
 
 
     private lateinit var binding: ActivityMainBinding
@@ -92,14 +92,15 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked {
         supportFragmentManager.beginTransaction()
                                 .replace(R.id.task_details_container,newFragment)
                                 .commit()
-        Log.d(TAG,"")
+        Log.d(TAG,"requestEditTask() called")
         taskDetailsContainer.visibility = View.VISIBLE
         binding.mainFragment.visibility = if (mTwoPane) View.VISIBLE else View.GONE
     }
 
-
-
-
+    override fun onEditTask(task: Task) {
+        Log.d(TAG,"onEditTask() called")
+        requestEditTask(task)
+    }
 
 
 }

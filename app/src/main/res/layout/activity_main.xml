@@ -42,7 +42,8 @@
             android:name="com.moa.tasktimer.MainActivityFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            tools:layout="@layout/fragment_main" />
 <!--            tools:layout="@layout/fragment_main" />-->
         <FrameLayout
             android:id="@+id/task_details_container"

@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.moa.tasktimer.databinding.FragmentAddEditBinding
 
 private const val ARG_TASK = "task"
@@ -26,6 +27,7 @@ class AddEditFragment : Fragment() {
     private var task: Task? = null
     private var listener:OnSaveClicked? = null
     private lateinit var binding:FragmentAddEditBinding
+    private val viewModel:TaskTimerViewModel by lazy { ViewModelProvider(requireActivity())[TaskTimerViewModel::class.java] }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG,"onCreate() starts")
@@ -55,38 +57,55 @@ class AddEditFragment : Fragment() {
             throw RuntimeException("$context: OnSaveClicked must be implemented")
         }
     }
-    private fun saveTask() {
-        val sortOrder = if(binding.addeditSortorder.text.isNotEmpty()) {
+    private fun newTaskToSaveOrUpdate(): Task {
+        val sortOrder = if (binding.addeditSortorder.text.isNotEmpty()) {
             binding.addeditSortorder.text.toString().toLong()
-        }else {
+        } else {
             0
         }
+        return Task(
+            binding.addeditName.text.toString(),
+            binding.addeditDescription.text.toString(),
+            sortOrder,
+            this.task?.id ?: 0
+        )
+    }
+    private fun saveTask() {
+//        val sortOrder = if(binding.addeditSortorder.text.isNotEmpty()) {
+//            binding.addeditSortorder.text.toString().toLong()
+//        }else {
+//            0
+//        }
         val values = ContentValues()
         val task = task
-        if(task != null) {
-            if(binding.addeditName.text .isNotEmpty() && binding.addeditName.text.toString() != task.name) {
-                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
-            }
-            if(binding.addeditDescription.text.toString() != task.description) {
-                values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
-            }
-            if(sortOrder != task.sortOrder) {
-                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
-            }
-            if(values.size() != 0) {
-                Log.d(TAG,"updating values")
-                activity?.contentResolver?.update(TasksContract.buildUriFromId(task.id),values,null,null)
-            }
-        }else {
-            if(binding.addeditName.text.isNotEmpty()) {
-                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
-                if(binding.addeditDescription.text.isNotEmpty()) {
-                    values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
-                }
-                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
-                activity?.contentResolver?.insert(TasksContract.CONTENT_URI,values)
-            }
+        val newTask = newTaskToSaveOrUpdate()
+        if(newTask != task) {
+            viewModel.saveTask(newTask)
         }
+//        if(task != null) {
+//            if(binding.addeditName.text .isNotEmpty() && binding.addeditName.text.toString() != task.name) {
+//                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
+//            }
+//            if(binding.addeditDescription.text.toString() != task.description) {
+//                values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
+//            }
+//            if(sortOrder != task.sortOrder) {
+//                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
+//            }
+//            if(values.size() != 0) {
+//                Log.d(TAG,"updating values")
+//                activity?.contentResolver?.update(TasksContract.buildUriFromId(task.id),values,null,null)
+//            }
+//        }else {
+//            if(binding.addeditName.text.isNotEmpty()) {
+//                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
+//                if(binding.addeditDescription.text.isNotEmpty()) {
+//                    values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
+//                }
+//                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
+//                activity?.contentResolver?.insert(TasksContract.CONTENT_URI,values)
+//            }
+//        }
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -102,9 +121,10 @@ class AddEditFragment : Fragment() {
             if(task != null) {
                 Log.d(TAG,"onViewCreated() task is not null and id is ${task.id}")
                 binding.addeditName.setText(task.name)
-                binding.addeditName.setText(task.description)
-                binding.addeditName.setText(task.sortOrder.toString())
+                binding.addeditDescription.setText(task.description)
+                binding.addeditSortorder.setText(task.sortOrder.toString())
             }
+
         }
     }
     override fun onDetach() {

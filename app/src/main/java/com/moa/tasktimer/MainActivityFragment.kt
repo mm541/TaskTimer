@@ -13,9 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.moa.tasktimer.databinding.FragmentMainBinding
 
 private const val TAG = "MainActivityFragment"
-class MainActivityFragment : Fragment() {
+class MainActivityFragment : Fragment(),CursorRecyclerViewAdapter.OnClickTask {
     private lateinit var binding: FragmentMainBinding
-    private val adapter = CursorRecyclerViewAdapter(null)
+    private var listener:OnEditTask? = null
+    private val adapter = CursorRecyclerViewAdapter(null,this)
     private val viewModel by lazy { ViewModelProvider(requireActivity())[TaskTimerViewModel::class.java] }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,6 +35,7 @@ class MainActivityFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        listener = context as OnEditTask
         Log.d(TAG,"onAttach() called")
     }
 
@@ -42,8 +44,21 @@ class MainActivityFragment : Fragment() {
         super.onCreate(savedInstanceState)
         viewModel.cursorLiveData.observe(this, Observer { adapter.swapCursor(it)?.close() })
     }
+    interface OnEditTask {
+        fun onEditTask(task: Task)
+    }
 
+    override fun onClickEdit(task: Task) {
+       listener?.onEditTask(task)
+    }
 
+    override fun onClickDelete(task: Task) {
+            viewModel.deleteTask(task.id)
+    }
+
+    override fun onLongClick(task: Task) {
+
+    }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         Log.d(TAG,"onViewStateRestored() called")
@@ -82,6 +97,9 @@ class MainActivityFragment : Fragment() {
 
     override fun onDetach() {
         Log.d(TAG,"onDetach() Called")
+        listener =  null
         super.onDetach()
     }
+
+
 }

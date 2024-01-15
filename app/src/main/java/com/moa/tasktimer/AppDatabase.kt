@@ -31,7 +31,6 @@ class AppDatabase private constructor(context: Context):SQLiteOpenHelper(context
 
         when(oldVersion) {
             1 -> {
-
             }
             else -> throw IllegalStateException("version not recognised")
         }
