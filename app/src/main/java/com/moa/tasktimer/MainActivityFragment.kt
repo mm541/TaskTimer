@@ -7,15 +7,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.moa.tasktimer.databinding.FragmentMainBinding
 
 private const val TAG = "MainActivityFragment"
 class MainActivityFragment : Fragment() {
+    private lateinit var binding: FragmentMainBinding
+    private val adapter = CursorRecyclerViewAdapter(null)
+    private val viewModel by lazy { ViewModelProvider(requireActivity())[TaskTimerViewModel::class.java] }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         Log.d(TAG,"onCreateView() called")
-        return inflater.inflate(R.layout.fragment_main, container, false)
+        binding = FragmentMainBinding.inflate(inflater)
+        return binding.root
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.d(TAG,"onViewCreated() called")
+        super.onViewCreated(view, savedInstanceState)
+        binding.taskList.layoutManager = LinearLayoutManager(activity)
+        binding.taskList.adapter = adapter
     }
 
     override fun onAttach(context: Context) {
@@ -26,12 +40,10 @@ class MainActivityFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"onCreate() called")
         super.onCreate(savedInstanceState)
+        viewModel.cursorLiveData.observe(this, Observer { adapter.swapCursor(it)?.close() })
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d(TAG,"onViewCreated() called")
-        super.onViewCreated(view, savedInstanceState)
-    }
+
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         Log.d(TAG,"onViewStateRestored() called")

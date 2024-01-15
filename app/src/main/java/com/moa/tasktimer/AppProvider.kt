@@ -122,6 +122,9 @@ class AppProvider:ContentProvider() {
             }
             else -> throw IllegalArgumentException("Unknown uri: $uri")
         }
+        if(recordId > 0) {
+            context.contentResolver.notifyChange(uri,null)
+        }
         Log.d(TAG,"exiting insert returning: $returnUri")
         return returnUri
     }
@@ -161,6 +164,9 @@ class AppProvider:ContentProvider() {
                 count = db.delete(TimingsContract.TABLE_NAME,selectionCriteria,selectionArgs)
             }
             else -> throw IllegalArgumentException("invalid uri: $uri")
+        }
+        if(count > 0) {
+            context.contentResolver.notifyChange(uri,null)
         }
         Log.d(TAG,"return count : $count")
         return count
@@ -206,6 +212,9 @@ class AppProvider:ContentProvider() {
                 count = db.update(TimingsContract.TABLE_NAME,values,selectionCriteria,selectionArgs)
             }
             else -> throw IllegalArgumentException("invalid uri: $uri")
+        }
+        if(count > 0) {
+            context.contentResolver.notifyChange(uri,null)
         }
         Log.d(TAG,"return count : $count")
         return count
