@@ -1,5 +1,6 @@
 package com.moa.tasktimer
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.moa.tasktimer.databinding.ActivityMainBinding
@@ -15,7 +17,7 @@ private const val TAG = "MainActivity"
 private const val EDIT_CONFIRMATION_ID = 1
 class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActivityFragment.OnEditTask,AppDialog.DialogEvents {
 
-
+    private var aboutDialog:AlertDialog? = null
     private lateinit var binding: ActivityMainBinding
     private var mTwoPane = false
     private lateinit var taskDetailsContainer:FrameLayout
@@ -81,6 +83,7 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
          when (item.itemId) {
             R.id.mainmenu_addtask -> {requestEditTask(null)
             }
+             R.id.mainmenu_about -> {showDialog()}
              android.R.id.home -> {
                  Log.d(TAG,"onOptionsItemSelected: home button pressed")
                  val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
@@ -96,6 +99,16 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
              }
         }
         return  super.onOptionsItemSelected(item)
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showDialog() {
+        val messageView = layoutInflater.inflate(R.layout.about,null,false)
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.app_name)
+        builder.setIcon(R.mipmap.ic_launcher)
+        aboutDialog = builder.setView(messageView).create()
+        aboutDialog?.show()
     }
 
     override fun onSaveClicked() {
@@ -125,5 +138,11 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        if(aboutDialog?.isShowing == true) {
+            aboutDialog?.dismiss()
+        }
+    }
 
 }
