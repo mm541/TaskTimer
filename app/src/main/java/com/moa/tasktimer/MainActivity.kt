@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.moa.tasktimer.databinding.ActivityMainBinding
 private const val TAG = "MainActivity"
-
-class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActivityFragment.OnEditTask {
+private const val EDIT_CONFIRMATION_ID = 1
+class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActivityFragment.OnEditTask,AppDialog.DialogEvents {
 
 
     private lateinit var binding: ActivityMainBinding
@@ -47,7 +47,15 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
                     isEnabled = false
                     finish()
                 }else {
-                    removeEditPane(fragment)
+                    if((fragment is AddEditFragment) && fragment.isDirty()) {
+                        showConfirmation(
+                            EDIT_CONFIRMATION_ID,
+                            getString(R.string.edit_confirmation_message),
+                            R.string.exit_without_saving,
+                            R.string.continue_editing)
+                    }else {
+                        removeEditPane(fragment)
+                    }
                 }
             }
         })
@@ -76,7 +84,15 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
              android.R.id.home -> {
                  Log.d(TAG,"onOptionsItemSelected: home button pressed")
                  val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
-                 removeEditPane(fragment)
+                 if((fragment is AddEditFragment) && fragment.isDirty()) {
+                     showConfirmation(
+                         EDIT_CONFIRMATION_ID,
+                         getString(R.string.edit_confirmation_message),
+                         R.string.exit_without_saving,
+                         R.string.continue_editing)
+                 }else {
+                     removeEditPane(fragment)
+                 }
              }
         }
         return  super.onOptionsItemSelected(item)
@@ -100,6 +116,13 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
     override fun onEditTask(task: Task) {
         Log.d(TAG,"onEditTask() called")
         requestEditTask(task)
+    }
+
+    override fun onPositiveDialogResult(dialogId: Int, args: Bundle) {
+        if(dialogId == EDIT_CONFIRMATION_ID) {
+            val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
+            removeEditPane(fragment)
+        }
     }
 
 

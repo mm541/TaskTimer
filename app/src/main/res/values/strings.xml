@@ -57,4 +57,9 @@
     <string name="description_heading">Use the add button (+) in the toolbar above to create new tasks.\n\nTasks with lower sort orders will be placed higher up the list.Tasks with the same sort order will be sorted alphabetically.\n\nTapping a task will start the timer for that task (and will stop the timer for any previous task that was being timed).\n\nEach task has Edit and Delete buttons if you want to change the details or remove the task.</string>
     <string name="ok">ok\n</string>
     <string name="cancel">cancel</string>
+    <string name="deldialog_message">Deleting this will also delete all the timings associated with task with id %1$d: %2$s</string>
+    <string name="delDialog_positive_caption">Delete</string>
+    <string name="edit_confirmation_message">Do you want to quit adding or editing task</string>
+    <string name="exit_without_saving">exit without saving</string>
+    <string name="continue_editing">continue editing</string>
 </resources>

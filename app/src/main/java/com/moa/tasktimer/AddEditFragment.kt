@@ -1,7 +1,6 @@
 package com.moa.tasktimer
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -71,41 +70,16 @@ class AddEditFragment : Fragment() {
         )
     }
     private fun saveTask() {
-//        val sortOrder = if(binding.addeditSortorder.text.isNotEmpty()) {
-//            binding.addeditSortorder.text.toString().toLong()
-//        }else {
-//            0
-//        }
-        val values = ContentValues()
         val task = task
         val newTask = newTaskToSaveOrUpdate()
         if(newTask != task) {
             viewModel.saveTask(newTask)
         }
-//        if(task != null) {
-//            if(binding.addeditName.text .isNotEmpty() && binding.addeditName.text.toString() != task.name) {
-//                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
-//            }
-//            if(binding.addeditDescription.text.toString() != task.description) {
-//                values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
-//            }
-//            if(sortOrder != task.sortOrder) {
-//                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
-//            }
-//            if(values.size() != 0) {
-//                Log.d(TAG,"updating values")
-//                activity?.contentResolver?.update(TasksContract.buildUriFromId(task.id),values,null,null)
-//            }
-//        }else {
-//            if(binding.addeditName.text.isNotEmpty()) {
-//                values.put(TasksContract.Columns.TASK_NAME,binding.addeditName.text.toString())
-//                if(binding.addeditDescription.text.isNotEmpty()) {
-//                    values.put(TasksContract.Columns.TASK_DESCRIPTION,binding.addeditDescription.text.toString())
-//                }
-//                values.put(TasksContract.Columns.SORT_ORDER,sortOrder)
-//                activity?.contentResolver?.insert(TasksContract.CONTENT_URI,values)
-//            }
-//        }
+
+    }
+    fun isDirty():Boolean {
+        val newTask = newTaskToSaveOrUpdate()
+        return newTask != task && (newTask.name.isNotEmpty()||newTask.description.isNotEmpty()||newTask.sortOrder != 0L)
     }
 
     @SuppressLint("SuspiciousIndentation")

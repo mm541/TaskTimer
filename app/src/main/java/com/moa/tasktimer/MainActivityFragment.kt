@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.moa.tasktimer.databinding.FragmentMainBinding
 
 private const val TAG = "MainActivityFragment"
-class MainActivityFragment : Fragment(),CursorRecyclerViewAdapter.OnClickTask {
+private const val DIALOG_DEL_ID=1
+private const val TASK_ID="task"
+class MainActivityFragment : Fragment(),CursorRecyclerViewAdapter.OnClickTask,AppDialog.DialogEvents {
     private lateinit var binding: FragmentMainBinding
     private var listener:OnEditTask? = null
     private val adapter = CursorRecyclerViewAdapter(null,this)
@@ -52,9 +54,26 @@ class MainActivityFragment : Fragment(),CursorRecyclerViewAdapter.OnClickTask {
        listener?.onEditTask(task)
     }
 
+
     override fun onClickDelete(task: Task) {
-            viewModel.deleteTask(task.id)
+            val args = Bundle().apply {
+                putInt(DIALOG_ID, DIALOG_DEL_ID)
+                putString(DIALOG_MESSAGE, getString(R.string.deldialog_message, task.id, task.name))
+                putInt(DIALOG_POSITIVE_RID, R.string.delDialog_positive_caption)
+                putLong(TASK_ID,task.id)
+            }
+        val dialog = AppDialog()
+        dialog.arguments = args
+        dialog.show(childFragmentManager,null)
+
     }
+    override fun onPositiveDialogResult(dialogId: Int, args: Bundle) {
+        if(dialogId == DIALOG_DEL_ID) {
+            val taskId = args.getLong(TASK_ID)
+            viewModel.deleteTask(taskId)
+        }
+    }
+
 
     override fun onLongClick(task: Task) {
 
@@ -100,6 +119,7 @@ class MainActivityFragment : Fragment(),CursorRecyclerViewAdapter.OnClickTask {
         listener =  null
         super.onDetach()
     }
+
 
 
 }

@@ -3,7 +3,9 @@ package com.moa.tasktimer
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatDialogFragment
 
 private const val TAG = "AppDialog"
@@ -24,7 +26,7 @@ class AppDialog: AppCompatDialogFragment() {
         super.onAttach(context)
         dialogEvents = try {
             parentFragment as DialogEvents
-        }catch (e:TypeCastException) {
+        }catch (e:Exception) {
             try {
                 context as DialogEvents
             }catch (e:ClassCastException) {
@@ -77,4 +79,9 @@ class AppDialog: AppCompatDialogFragment() {
         super.onDetach()
         dialogEvents = null
     }
+
+    override fun onCancel(dialog: DialogInterface) {
+        Log.d(TAG,"onCancel() called")
+    }
+
 }
