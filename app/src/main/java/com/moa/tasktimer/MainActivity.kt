@@ -107,6 +107,11 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.app_name)
         builder.setIcon(R.mipmap.ic_launcher)
+        builder.setPositiveButton(R.string.ok) {_,_ ->
+            if(aboutDialog != null && aboutDialog!!.isShowing) {
+                aboutDialog?.dismiss()
+            }
+        }
         aboutDialog = builder.setView(messageView).create()
         aboutDialog?.show()
     }
