@@ -73,7 +73,6 @@ class AppDialog: AppCompatDialogFragment() {
 
             }.setIcon(iconId).create()
     }
-
     override fun onDetach() {
         super.onDetach()
         dialogEvents = null
