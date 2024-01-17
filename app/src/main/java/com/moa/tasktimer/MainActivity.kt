@@ -97,6 +97,9 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
                      removeEditPane(fragment)
                  }
              }
+             R.id.mainmenu_settings -> {
+                 SettingsDialog().show(supportFragmentManager,null)
+             }
         }
         return  super.onOptionsItemSelected(item)
     }
@@ -114,6 +117,7 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
         }
         aboutDialog = builder.setView(messageView).create()
         aboutDialog?.show()
+
     }
 
     override fun onSaveClicked() {
@@ -129,6 +133,7 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
         Log.d(TAG,"requestEditTask() called")
         taskDetailsContainer.visibility = View.VISIBLE
         binding.mainFragment.visibility = if (mTwoPane) View.VISIBLE else View.GONE
+
     }
 
     override fun onEditTask(task: Task) {

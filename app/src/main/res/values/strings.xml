@@ -31,4 +31,7 @@
     <string name="instructions_available_at_www_moa_com">Instructions available at www.moa.com</string>
     <string name="for_support_contact_moazzamparwe40_gmail_com">For support, contact moazzamparwe40@gmail.com</string>
     <string name="textview">TextView</string>
+    <string name="cancel_Button_text">CANCEL</string>
+    <string name="ok_button_text">OK</string>
+    <string name="settings">Settings</string>
 </resources>
