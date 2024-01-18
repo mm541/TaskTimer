@@ -76,7 +76,7 @@ class MainActivityFragment : Fragment(),CursorRecyclerViewAdapter.OnClickTask,Ap
 
 
     override fun onLongClick(task: Task) {
-
+        viewModel.assignCurrentTiming(task)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {

@@ -2,17 +2,23 @@ package com.moa.tasktimer
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.moa.tasktimer.databinding.ActivityMainBinding
+import com.moa.tasktimer.debug.TestData
+
 private const val TAG = "MainActivity"
 private const val EDIT_CONFIRMATION_ID = 1
 class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActivityFragment.OnEditTask,AppDialog.DialogEvents {
@@ -21,6 +27,8 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
     private lateinit var binding: ActivityMainBinding
     private var mTwoPane = false
     private lateinit var taskDetailsContainer:FrameLayout
+    private val viewModel:TaskTimerViewModel by lazy { ViewModelProvider(this)[TaskTimerViewModel::class.java] }
+    private val currTask:TextView by lazy { binding.mainFragment.findViewById(R.id.current_task) }
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG,"onCreate() called")
         super.onCreate(savedInstanceState)
@@ -61,6 +69,13 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
                 }
             }
         })
+        viewModel.timing.observe(this, Observer {
+           currTask.text = if(it == null) {
+               getString(R.string.no_task_selected)
+           }else {
+               getString(R.string.task_timing,it)
+           }
+        })
     }
     private fun removeEditPane(fragment: Fragment? = null) {
         Log.d(TAG,"removeEditPane() called")
@@ -76,6 +91,7 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.mainmenu_generate).isVisible = true
         return true
     }
 
@@ -84,6 +100,11 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
             R.id.mainmenu_addtask -> {requestEditTask(null)
             }
              R.id.mainmenu_about -> {showDialog()}
+             R.id.mainmenu_generate -> {
+                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                     TestData(application).generateTestData()
+                 }
+             }
              android.R.id.home -> {
                  Log.d(TAG,"onOptionsItemSelected: home button pressed")
                  val fragment = supportFragmentManager.findFragmentById(R.id.task_details_container)
@@ -117,7 +138,6 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
         }
         aboutDialog = builder.setView(messageView).create()
         aboutDialog?.show()
-
     }
 
     override fun onSaveClicked() {

@@ -1,5 +1,6 @@
 package com.moa.tasktimer
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentValues
 import android.database.ContentObserver
@@ -25,10 +26,14 @@ class TaskTimerViewModel(application:Application):AndroidViewModel(application) 
     private val cursorMutable = MutableLiveData<Cursor?>()
     val cursorLiveData:LiveData<Cursor?>
         get() = cursorMutable
-
+    private var currentTiming:Timing? = null
+    private val taskTiming = MutableLiveData<String>()
+    val timing:LiveData<String>
+        get() = taskTiming
     init {
         getApplication<Application>().contentResolver.registerContentObserver(TasksContract.CONTENT_URI,true,contentObserver)
         Log.d(TAG,"TaskTimerViewModel() initialised")
+        currentTiming = getCurrentTiming()
         loadTasks()
     }
     @OptIn(DelicateCoroutinesApi::class)
@@ -73,6 +78,64 @@ class TaskTimerViewModel(application:Application):AndroidViewModel(application) 
                 }
             }
         }
+    }
+    fun assignCurrentTiming(task:Task) {
+        val currTiming = currentTiming
+        if(currTiming == null) {
+            currentTiming = Timing(task.id)
+            saveTiming(currentTiming!!)
+        }else {
+            currTiming.setDuration()
+            saveTiming(currTiming)
+            if(currTiming.taskId == task.id) {
+                currentTiming =   null
+            }else {
+               currentTiming = Timing(task.id)
+                saveTiming(currentTiming!!)
+            }
+        }
+        taskTiming.value = if(currentTiming!=null) task.name else null
+    }
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun saveTiming(timing:Timing) {
+        val inserting = (timing.duration == 0L)
+
+        val values = ContentValues().apply {
+            if(inserting) {
+                put(TimingsContract.Columns.TIMING_TASK_ID,timing.taskId)
+                put(TimingsContract.Columns.TIMING_START_TIME,timing.startTime)
+            }
+            put(TimingsContract.Columns.TIMING_DURATION,timing.duration)
+        }
+        GlobalScope.launch {
+            if (inserting) {
+                val uri = getApplication<Application>().contentResolver.insert(
+                    TimingsContract.CONTENT_URI,
+                    values
+                )
+                if (uri != null) {
+                    timing.id = TimingsContract.getId(uri)
+                }
+            } else {
+                getApplication<Application>().contentResolver.update(TimingsContract.buildUriFromId(timing.id),values,null,null)
+            }
+        }
+    }
+    @SuppressLint("Range")
+    fun getCurrentTiming():Timing? {
+        var timing:Timing? = null
+        val cursor =  getApplication<Application>().contentResolver.query(CurrentTimingContract.CONTENT_URI,null,null,null,null)
+        cursor.use {
+            if (it!=null && it.moveToNext()) {
+                val name = it.getString(it.getColumnIndex(TasksContract.Columns.TASK_NAME))
+                val taskId = it.getLong(it.getColumnIndex(TimingsContract.Columns.TIMING_TASK_ID))
+                val timingId = it.getLong(it.getColumnIndex(TimingsContract.Columns.ID))
+                val startTime = it.getLong(it.getColumnIndex(TimingsContract.Columns.TIMING_START_TIME))
+                taskTiming.value = name
+                timing = Timing(taskId,startTime,timingId)
+            }
+        }
+        return timing
     }
     override fun onCleared() {
         getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
