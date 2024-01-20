@@ -22,7 +22,6 @@ private const val TIMINGS = 200
 private const val TIMINGS_ID = 201
 private const val CURRENT_TIMING = 300
 private const val TASK_DURATION = 400
-private const val TASK_DURATION_ID = 401
 
 val CONTENT_AUTHORITY_URI: Uri = Uri.parse("content://${CONTENT_AUTHORITY}")
 
@@ -40,8 +39,7 @@ class AppProvider:ContentProvider() {
         matcher.addURI(CONTENT_AUTHORITY, TimingsContract.TABLE_NAME,TIMINGS)
         matcher.addURI(CONTENT_AUTHORITY,"${TimingsContract.TABLE_NAME}/#",TIMINGS_ID)
         matcher.addURI(CONTENT_AUTHORITY,CurrentTimingContract.TABLE_NAME, CURRENT_TIMING)
-//        matcher.addURI(CONTENT_AUTHORITY,"${DurationsContract.TABLE_NAME}",TASK_DURATION)
-//        matcher.addURI(CONTENT_AUTHORITY,"${DurationsContract.TABLE_NAME}/#",TASK_DURATION_ID)
+        matcher.addURI(CONTENT_AUTHORITY, DurationsContract.TABLE_NAME,TASK_DURATION)
 
         return matcher
     }
@@ -80,13 +78,7 @@ class AppProvider:ContentProvider() {
             CURRENT_TIMING -> {
                 queryBuilder.tables = CurrentTimingContract.TABLE_NAME
             }
-//            TASK_DURATION -> queryBuilder.tables = TasksContract.TABLE_NAME
-//            TASK_DURATION_ID -> {
-//                queryBuilder.tables = DurationsContract.TABLE_NAME
-//                val taskId = DurationsContract.getId(uri)
-//                queryBuilder.appendWhere("${DurationsContract.Columns.ID} = ")
-//                queryBuilder.appendWhereEscapeString("$taskId")
-//            }
+            TASK_DURATION -> queryBuilder.tables = DurationsContract.TABLE_NAME
             else -> throw IllegalStateException("Unknown Uri: $uri")
         }
 

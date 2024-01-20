@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 
 private const val DATABASE_NAME = "TaskTimer.db"
-private const val DATABASE_VERSION = 3
+private const val DATABASE_VERSION = 4
 private const val TAG = "AppDatabase"
 class AppDatabase private constructor(context: Context):SQLiteOpenHelper(context, DATABASE_NAME,null,
     DATABASE_VERSION) {
@@ -45,6 +45,19 @@ class AppDatabase private constructor(context: Context):SQLiteOpenHelper(context
         db.execSQL(sSql2)
 
         addCurrentTimingView(db)
+        addDurationView(db)
+    }
+    private fun addDurationView(db: SQLiteDatabase) {
+        val sSql = """
+            CREATE VIEW ${DurationsContract.TABLE_NAME} AS
+            SELECT ${DurationsContract.Columns.NAME},${DurationsContract.Columns.DESCRIPTION},
+            ${DurationsContract.Columns.START_TIME},DATE(${DurationsContract.Columns.START_TIME},'unixepoch','localtime') AS ${DurationsContract.Columns.START_DATE},
+            SUM(${TimingsContract.Columns.TIMING_DURATION}) AS ${DurationsContract.Columns.DURATION}
+            FROM ${TasksContract.TABLE_NAME} INNER JOIN ${TimingsContract.TABLE_NAME} ON
+            ${TasksContract.TABLE_NAME}.${TasksContract.Columns.ID}  = ${TimingsContract.TABLE_NAME}.${TimingsContract.Columns.TIMING_TASK_ID}
+            GROUP BY ${TasksContract.TABLE_NAME}.${TasksContract.Columns.ID},${DurationsContract.Columns.START_DATE}
+        """.trimIndent()
+        db.execSQL(sSql)
     }
     private fun addCurrentTimingView(db: SQLiteDatabase) {
         /*
@@ -99,9 +112,14 @@ class AppDatabase private constructor(context: Context):SQLiteOpenHelper(context
         """.trimIndent()
                 db.execSQL(sSql2)
                 addCurrentTimingView(db)
+                addDurationView(db)
             }
             2 -> {
                 addCurrentTimingView(db)
+                addDurationView(db)
+            }
+            3 -> {
+                addDurationView(db)
             }
             else -> throw IllegalStateException("version not recognised")
         }
