@@ -4,6 +4,7 @@
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
+
     <style name="SettingsDialogStyle" parent="Theme.Material3.DayNight.Dialog.Alert">
         <item name="windowNoTitle">false</item>
     </style>

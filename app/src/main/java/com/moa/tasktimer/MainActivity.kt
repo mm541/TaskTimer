@@ -1,6 +1,7 @@
 package com.moa.tasktimer
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -99,6 +100,9 @@ class MainActivity : AppCompatActivity(),AddEditFragment.OnSaveClicked,MainActiv
          when (item.itemId) {
             R.id.mainmenu_addtask -> {requestEditTask(null)
             }
+             R.id.mainmanu_showDurations -> {
+                 startActivity(Intent(this,DurationsReport::class.java))
+             }
              R.id.mainmenu_about -> {showDialog()}
              R.id.mainmenu_generate -> {
                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
