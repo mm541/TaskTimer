@@ -22,19 +22,18 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
         val arguments = arguments
 
         if(arguments != null) {
-               title = arguments.getString(DATE_PICKER_TITLE,"")
-                dialogId = arguments.getInt(DATE_PICKER_ID,0)
-                val date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    arguments.getSerializable(DATE_PICKER_DATE,Date::class.java)
-                } else {
-                    arguments.getSerializable(DATE_PICKER_DATE)
-                }
+            title = arguments.getString(DATE_PICKER_TITLE,"")
+            dialogId = arguments.getInt(DATE_PICKER_ID,0)
+            val date = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arguments.getSerializable(DATE_PICKER_DATE,Date::class.java)
+            } else {
+                arguments.getSerializable(DATE_PICKER_DATE)
+            }
             if(date != null) {
                 cal.time = date as Date?
             }
 
         }
-
         val dpd = DatePickerDialog(requireContext(),this,cal.get(GregorianCalendar.YEAR),cal.get(GregorianCalendar.MONTH),cal.get(GregorianCalendar.DAY_OF_MONTH))
         if(title != null)
             dpd.setTitle(title)
@@ -49,7 +48,6 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
         if(context !is OnDateSet) {
             throw IllegalStateException("callee activity must implement OnDateSet interface")
         }
-
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {

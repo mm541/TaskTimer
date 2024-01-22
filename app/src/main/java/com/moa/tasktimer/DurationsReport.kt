@@ -1,7 +1,8 @@
 package com.moa.tasktimer
 
-import android.os.Build.VERSION_CODES.R
+
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.DatePicker
@@ -27,7 +28,6 @@ class DurationsReport : AppCompatActivity(),DatePickerFragment.OnDateSet {
     private lateinit var binding: DurationLayoutBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = DurationLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -54,6 +54,7 @@ class DurationsReport : AppCompatActivity(),DatePickerFragment.OnDateSet {
 
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+
         val item = menu?.findItem(R.id.rm_period)
         if(item != null) {
             if(viewModel.displayWeek) {
@@ -90,17 +91,18 @@ class DurationsReport : AppCompatActivity(),DatePickerFragment.OnDateSet {
        }
     }
     private fun showDatePicker(title:String,dialogId:Int) {
-        val datePicker = DatePickerFragment()
-        datePicker.arguments?.apply {
+        val bundle = Bundle().apply {
             putInt(DATE_PICKER_ID, dialogId)
             putString(DATE_PICKER_TITLE,title)
             putSerializable(DATE_PICKER_DATE,viewModel.getFilteredDate())
         }
+        val datePicker = DatePickerFragment()
+        datePicker.arguments = bundle
         datePicker.show(supportFragmentManager,null)
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        when(view.tag) {
+        when(view.tag as Int) {
             DATE_PICKER_FILTER -> {
                 viewModel.setReportDate(year,month,day)
             }
@@ -108,7 +110,7 @@ class DurationsReport : AppCompatActivity(),DatePickerFragment.OnDateSet {
 
             }
             else -> {
-                throw IllegalArgumentException("Illegal dialog id")
+               Log.d(TAG, (view.tag as Int).toString())
             }
         }
     }
