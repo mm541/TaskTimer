@@ -78,4 +78,10 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="rm_period_day">"Show day report "</string>
+    <string name="re_period_week">Show week report</string>
+    <string name="rm_period_week">Show week report</string>
+    <string name="rm_date_report">Show report date</string>
+    <string name="rm_delete_report">Delete reports</string>
+    <string name="select_date_for_report">Select date for report</string>
 </resources>

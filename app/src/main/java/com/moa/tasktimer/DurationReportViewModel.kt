@@ -13,8 +13,10 @@ class DurationReportViewModel(application: Application):AndroidViewModel(applica
     private var databaseCursor = MutableLiveData<Cursor?>()
     val cursor:LiveData<Cursor?>
         get() = databaseCursor
-
-    private var sortOrder = SortOrder.NAME
+    private var _displayWeek = false
+    val displayWeek:Boolean
+        get() = _displayWeek
+     var sortOrder = SortOrder.NAME
         set(order) {
             if (order != field) {
                 field = order
@@ -27,7 +29,7 @@ class DurationReportViewModel(application: Application):AndroidViewModel(applica
     }
 
     private val selection = "${DurationsContract.Columns.DURATION} BETWEEN ? AND ?"
-    private var selectionArgs = arrayOf("1598333333","23823834345")
+    private var selectionArgs = arrayOf("0","23823834345")
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun loadData() {
@@ -41,11 +43,15 @@ class DurationReportViewModel(application: Application):AndroidViewModel(applica
             val cursor = getApplication<Application>().contentResolver.query(
                 DurationsContract.CONTENT_URI,
                 null,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 order
             )
             databaseCursor.postValue(cursor)
         }
+    }
+
+    fun toggleWeek() {
+        _displayWeek = !_displayWeek
     }
 }
